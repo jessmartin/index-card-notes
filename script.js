@@ -1,52 +1,50 @@
-function createCard(titleText, content) {
-  let card = document.createElement("div");
-  let title = document.createElement("h1");
-  title.innerText = titleText;
-  card.appendChild(title);
-  let body = document.getElementById("table");
-  card.className = "card";
+let cards = document.getElementsByClassName("card");
 
-  // Stick it in the DOM
-  body.appendChild(card);
-  makeDraggable();
+for (let i = 0; i < cards.length; i++) {
+  makeDraggable(cards.item(i));
 }
 
-function makeDraggable() {
-  const elRoot = document.querySelector(".card");
-
-  let isDragging = false;
-  let startX = null;
-  let startY = null;
-  let startLeft = null;
-  let startTop = null;
+function makeDraggable(elRoot) {
+  elRoot.setAttribute("startX", "");
+  elRoot.setAttribute("startY", "");
+  elRoot.setAttribute("startLeft", "");
+  elRoot.setAttribute("startRight", "");
+  elRoot.setAttribute("isDragging", false);
 
   elRoot.addEventListener("mousedown", (e) => {
     const rect = elRoot.getBoundingClientRect();
-    isDragging = true;
+    elRoot.setAttribute("isDragging", true);
 
-    startX = e.pageX;
-    startY = e.pageY;
+    elRoot.setAttribute("startX", e.pageX);
+    elRoot.setAttribute("startY", e.pageY);
 
-    startLeft = rect.left;
-    startTop = rect.top;
+    elRoot.setAttribute("startLeft", rect.left);
+    elRoot.setAttribute("startRight", rect.top);
 
-    elRoot.style = "cursor: grabbing;";
+    elRoot.className = "card grabbing";
   });
 
   window.addEventListener("mouseup", () => {
-    // set elRoot style to cursor: grab
-    isDragging = false;
-    startX = null;
-    startY = null;
-    startLeft = null;
-    startTop = null;
+    elRoot.setAttribute("startX", "");
+    elRoot.setAttribute("startY", "");
+    elRoot.setAttribute("startLeft", "");
+    elRoot.setAttribute("startRight", "");
+    elRoot.setAttribute("isDragging", false);
+    elRoot.className = "card";
   });
 
   window.addEventListener("mousemove", (e) => {
+    let isDragging = "true" == elRoot.getAttribute("isDragging");
     if (!isDragging) return;
+
+    let startX = parseInt(elRoot.getAttribute("startX"));
+    let startY = parseInt(elRoot.getAttribute("startY"));
 
     const deltaX = e.pageX - startX;
     const deltaY = e.pageY - startY;
+
+    let startLeft = parseInt(elRoot.getAttribute("startLeft"));
+    let startTop = parseInt(elRoot.getAttribute("startRight"));
 
     elRoot.style.left = `${startLeft + deltaX}px`;
     elRoot.style.top = `${startTop + deltaY}px`;
@@ -69,8 +67,10 @@ document.querySelector("#read-button").addEventListener("click", function () {
   reader.addEventListener("load", function (e) {
     // contents of the file
     let text = e.target.result;
-
-    document.querySelector("#file-contents").textContent = text;
+    let lines = text.split("\n");
+    let title = lines.pop();
+    let content = lines.join("\n").slice(0, 30);
+    createCard(title, content);
   });
 
   // event fired when file reading failed
@@ -80,8 +80,17 @@ document.querySelector("#read-button").addEventListener("click", function () {
 
   // read file as text file
   let content = reader.readAsText(file);
-
-  createCard(title, content);
 });
 
-makeDraggable();
+function createCard(titleText, content) {
+  let card = document.createElement("div");
+  let title = document.createElement("h1");
+  title.innerText = titleText;
+  card.appendChild(title);
+  let body = document.querySelector("body");
+  card.className = "card";
+
+  // Stick it in the DOM
+  body.appendChild(card);
+  makeDraggable(card);
+}
