@@ -57,15 +57,11 @@ document.querySelector("#read-button").addEventListener("click", function () {
     return;
   }
 
-  // file selected by user
   let file = document.querySelector("#file-input").files[0];
 
-  // new FileReader object
   let reader = new FileReader();
 
-  // event fired when file reading finished
   reader.addEventListener("load", function (e) {
-    // contents of the file
     let text = e.target.result;
     let lines = text.split("\n");
     let title = lines.pop();
@@ -73,13 +69,11 @@ document.querySelector("#read-button").addEventListener("click", function () {
     createCard(title, content);
   });
 
-  // event fired when file reading failed
   reader.addEventListener("error", function () {
     alert("Error : Failed to read file");
   });
 
-  // read file as text file
-  let content = reader.readAsText(file);
+  reader.readAsText(file);
 });
 
 function createCard(titleText, content) {
